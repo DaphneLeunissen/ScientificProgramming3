@@ -1,0 +1,59 @@
+---
+title: "Assignment3"
+author: "Daphne Leunissen"
+date: "14 oktober 2018"
+output: html_document
+---
+
+## R Markdown
+
+This is an R Markdown document for assignment 3 Parallel computing. 
+
+### Loading packages
+The first step is installing and loading packages.
+```{r}
+# Check for installed packages, when not present this code will install them.
+packages <- c("rcdk", "iterators", "parallel", "doParallel")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())))  
+}
+
+# loading packages
+# rcdk:
+library(rcdk)
+# iterators:
+library(iterators)
+# parallel:
+library(parallel)
+# doParallel: foreach
+library(doParallel)
+
+```
+### Importing the data
+The Structure Data File (SDF) will be imported and used to calculate the descriptors. Due to large size of the file an iterator will be applied. 
+For this step the 'rcdk' and 'iterators' packages will be used. The iterator adds the molecules to the mols list.  
+```{r}
+# the number of imported molecules
+n <- 10
+
+# using the iterator reader to go through the molecules one by one and add them to mols list
+iter <- iload.molecules('C:/Users/daphn/OneDrive/Documenten/Master Systems Biology/Scientific programming/assignment3/3108202650709897102.sdf/3108202650709897102.sdf', type='sdf')
+# this function creates a progress bar to display the progress of importing the molecules 
+pb <- txtProgressBar(min = 0, max = n, style = 3)
+# set counter
+counter <- 0
+# create empty mols list
+mols <- list()
+while(hasNext(iter)) {
+    # update counter  
+    counter <- counter + 1
+    # save selected molecule
+    mols[[counter]] = nextElem(iter)
+    # print progress bar
+    setTxtProgressBar(pb, counter)
+    if(counter == n){ 
+    break
+    }
+}
+close(pb)
+```
