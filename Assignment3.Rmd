@@ -13,7 +13,7 @@ This is an R Markdown document for assignment 3 Parallel computing.
 The first step is installing and loading packages.
 ```{r}
 # Check for installed packages, when not present this code will install them.
-packages <- c("rcdk", "iterators", "parallel", "doParallel")
+packages <- c("rcdk", "iterators", "doParallel")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
 }
@@ -23,8 +23,6 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 library(rcdk)
 # iterators:
 library(iterators)
-# parallel:
-library(parallel)
 # doParallel: foreach
 library(doParallel)
 
@@ -57,3 +55,33 @@ while(hasNext(iter)) {
 }
 close(pb)
 ```
+### Computing molecular descriptors in parallel
+Next I will calculate the molecular descriptors of the selected molecules in parallel using the parallel functions and the doParallel package. In which I will only save the time it takes to calculate the descriptors. 
+```{r}
+# find maximum number of cores of the system
+num.cores <- detectCores() - 1
+
+# define the set of descriptors to be calculated
+descNames <- unique(unlist(sapply(get.desc.categories()[2:4], get.desc.names)))
+# initialise progress bar
+pb <- txtProgressBar(min = 0, max = num.cores, style = 3) 
+# turn molecules into smiles (which is a compressed format of chemical structure)
+smiles <- lapply(unlist(mols), get.smiles)
+
+# create an empty list to store the results in
+times <- list()
+# in this for loop the descriptors will be calculated in parallel using different amount of cores
+for(i in 1:num.cores){
+  cl <- makeCluster(i)
+  # this function exports the data to the core
+  clusterExport(cl, "smiles")
+  clusterExport(cl, "descNames")
+  # because I use a particular package I need to load them through clusterEvalQ function. 
+  clusterEvalQ(cl, library(rcdk, parallel))
+  # for this part I used the foreach package(?) 
+  registerDoParallel(cl)
+  times[i] <- system.time(foreach(x=1:n, .combine=rbind) %dopar% eval.desc(parse.smiles(smiles[[x]]),descNames))
+  setTxtProgressBar(pb, i)
+  stopCluster(cl)
+}
+``` 
