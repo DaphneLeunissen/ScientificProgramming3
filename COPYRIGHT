@@ -1,0 +1,13 @@
+Copyright file
+
+Data
+The data used for this assignment is publicly available and can be found in Pubchem open chemistry database: 
+BioAssay Record for AID 624202. See this link: https://pubchem.ncbi.nlm.nih.gov/bioassay/624202#section=Top
+
+Rstudio
+Creating this document was done in Rstudio with a RMarkdown file. Rstudio has a general public license, no copyright needed.
+
+Packages
+- rcdk has a LGPL-2, LGPL-2.1 and LGPL-3 license, more information can be found here:  https://cran.r-project.org/web/packages/rcdk/index.html
+- doParallel has a GPL-2license, more information can be found here:  https://cran.r-project.org/web/packages/rcdk/index.html
+- iterators has a Apache License (== 2.0), more information can be found here:  https://cran.r-project.org/web/packages/iterators/index.html
