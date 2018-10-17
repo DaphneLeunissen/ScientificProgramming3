@@ -84,4 +84,9 @@ for(i in 1:num.cores){
   setTxtProgressBar(pb, i)
   stopCluster(cl)
 }
+```
+### Results
+Finally, I plot the results. 
+```{r}
+plot(unlist(times),xlab="number of cores",ylab="time (sec)",main=paste0("Time it took to compute descriptors for ",n," molecules"),type='b')
 ``` 
