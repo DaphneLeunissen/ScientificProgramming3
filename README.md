@@ -23,6 +23,6 @@ R
 Markdown
 
 #### Programming Approaches
-•	Interactive notebooks
-•	Parallel computing 
+*	Interactive notebooks
+*	Parallel computing 
 
