@@ -1,5 +1,5 @@
 ---
-title: "Assignment3"
+title: "Assignment 3"
 author: "Daphne Leunissen"
 date: "14 oktober 2018"
 output: html_document
@@ -19,11 +19,11 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 }
 
 # loading packages
-# rcdk:
+# rcdk: this package allows users to access cheminformatics functionality of the CDK, a Java library
 library(rcdk)
-# iterators:
+# iterators: this package inclues several functions for creating iterators 
 library(iterators)
-# doParallel: foreach
+# doParallel: this package provides a mechanism to execute foreach loops in parallel
 library(doParallel)
 
 ```
