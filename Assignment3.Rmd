@@ -1,17 +1,17 @@
 ---
 title: "Assignment 3"
 author: "Daphne Leunissen"
-date: "14 oktober 2018"
+date: "19 oktober 2018"
 output: html_document
 ---
 
 ## R Markdown
 
-This is an R Markdown document for assignment 3 Parallel computing. 
+This is an R Markdown document for executing assignment 3 Parallel computing. 
 
 ### Loading packages
 The first step is installing and loading packages.
-```{r}
+```{r, message = FALSE}
 # Check for installed packages, when not present this code will install them.
 packages <- c("rcdk", "iterators", "doParallel")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
@@ -21,22 +21,21 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 # loading packages
 # rcdk: this package allows users to access cheminformatics functionality of the CDK, a Java library
 library(rcdk)
-# iterators: this package inclues several functions for creating iterators 
+# iterators: this package includes several functions for creating iterators 
 library(iterators)
 # doParallel: this package provides a mechanism to execute foreach loops in parallel
 library(doParallel)
-
 ```
+
 ### Importing the data
-The Structure Data File (SDF) will be imported and used to calculate the descriptors. Due to large size of the file an iterator will be applied. 
-For this step the 'rcdk' and 'iterators' packages will be used. The iterator adds the molecules to the mols list.  
+The Structure Data File (SDF) will be imported and used to calculate the descriptors. Due to large size of the file an iterator will be applied. For this step the 'rcdk' and 'iterators' packages will be used. The iterator adds the molecules to the mols list.  
 ```{r}
 # the number of imported molecules
-n <- 10
+n <- 100
 
 # using the iterator reader to go through the molecules one by one and add them to mols list
 iter <- iload.molecules('C:/Users/daphn/OneDrive/Documenten/Master Systems Biology/Scientific programming/assignment3/3108202650709897102.sdf/3108202650709897102.sdf', type='sdf')
-# this function creates a progress bar to display the progress of importing the molecules 
+# Create a progress bar to display the progress of importing the molecules 
 pb <- txtProgressBar(min = 0, max = n, style = 3)
 # set counter
 counter <- 0
@@ -45,7 +44,7 @@ mols <- list()
 while(hasNext(iter)) {
     # update counter  
     counter <- counter + 1
-    # save selected molecule
+    # save selected molecule (nextElem returns the next value)
     mols[[counter]] = nextElem(iter)
     # print progress bar
     setTxtProgressBar(pb, counter)
@@ -55,8 +54,9 @@ while(hasNext(iter)) {
 }
 close(pb)
 ```
+
 ### Computing molecular descriptors in parallel
-Next I will calculate the molecular descriptors of the selected molecules in parallel using the parallel functions and the doParallel package. In which I will only save the time it takes to calculate the descriptors. 
+Next I will calculate the molecular descriptors of the selected molecules in parallel using the parallel functions and the doParallel package. In which I will only save the time it takes to calculate the descriptors. I also checked whether the calculations where the same for computing the descriptors in sequence. They turned out to be identical meaning that the calculation of the descriptors in parallel is thread safe. 
 ```{r}
 # find maximum number of cores of the system
 num.cores <- detectCores() - 1
@@ -77,14 +77,15 @@ for(i in 1:num.cores){
   clusterExport(cl, "smiles")
   clusterExport(cl, "descNames")
   # because I use a particular package I need to load them through clusterEvalQ function. 
-  clusterEvalQ(cl, library(rcdk, parallel))
-  # for this part I used the foreach package(?) 
+  clusterEvalQ(cl, library(rcdk))
+  # for the next part I used the doParallel package 
   registerDoParallel(cl)
   times[i] <- system.time(foreach(x=1:n, .combine=rbind) %dopar% eval.desc(parse.smiles(smiles[[x]]),descNames))
   setTxtProgressBar(pb, i)
   stopCluster(cl)
 }
-```
+``` 
+
 ### Results
 Finally, I plot the results. 
 ```{r}
